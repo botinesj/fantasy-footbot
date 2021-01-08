@@ -266,6 +266,7 @@ async def who(ctx):
                        "restart the command and make sure that the full name of "
                        "the player is typed in correctly and the corresponding "
                        "position is correct.")
+        return
 
     # Player Name Exceptions (There is more than 1 player with that name)
     if p1_name == "michael thomas":
@@ -358,8 +359,14 @@ async def myteam(ctx):
     # Display Team Name
     query1 = "SELECT team_name FROM Users WHERE userID = " + str(user_id)
     mycursor.execute(query1)
-    records1 = mycursor.fetchall() # fetchone gives records var above for some reason
+    records1 = mycursor.fetchall() # fetchone gives records variable above for some reason
     await ctx.send("============" + records1[0][0].upper() + "============")
+
+    query3 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+    mycursor.execute(query3)
+    records3 = mycursor.fetchall()
+    for record in records3:
+        await ctx.send(record)
 
     # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
     await ctx.send("What would you like to do? Please enter one of the following:\n"
@@ -367,6 +374,8 @@ async def myteam(ctx):
                    "REMOVE - Remove a player from your team\n")
     action_response = await client.wait_for('message', check=myteam_check)
     action = action_response.content.upper()
+
+    # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
 
     if action == "ADD":
         await ctx.send("What is the player's position? Please enter one of the following:\n"
@@ -377,51 +386,73 @@ async def myteam(ctx):
                        "K\n"
                        "DST\n")
 
-    # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
-    position_response = await client.wait_for('message', check=position_check)
-    position = position_response.content.upper()
-    scoring_format2 = "STANDARD"
-    if position not in ["QB", "DST"]:
-        await ctx.send("What is the Scoring format? Please enter one of the following:\n"
-                       "Standard\n"
-                       "PPR\n"
-                       "Half\n")
-        scoring_response2 = await client.wait_for('message', check=scoring_format_check)
-        scoring_format2 = scoring_response2.content.upper()
+        position_response = await client.wait_for('message', check=position_check)
+        position = position_response.content.upper()
 
-    await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
-    name_response = await client.wait_for('message')
-    player_name = name_response.content.lower()
+        await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
+        name_response = await client.wait_for('message')
+        player_name = name_response.content.lower()
 
-    if scoring_format2 == "STANDARD":
+        # Making sure this is a valid Player
         r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/?year=2020')
         soup = bs4.BeautifulSoup(r.text, features="html.parser")
-    elif scoring_format2 == "HALF":
-        r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/half-ppr.php?year=2020')
-        soup = bs4.BeautifulSoup(r.text, features="html.parser")
-    elif scoring_format2 == "PPR":
-        r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/ppr.php?year=2020')
-        soup = bs4.BeautifulSoup(r.text, features="html.parser")
 
-    is_displayed = False
-    for tr in soup.find_all('tr')[1:]:
-        tds = tr.find_all('td')
-        # print(tds[1].text.lower()) Need to get rid of
-        com_player_name = tds[1].text.lower()
-        if " iii" in com_player_name:
-            com_player_name = com_player_name.replace(" iii", "")
-        elif " ii" in com_player_name:
-            com_player_name = com_player_name.replace(" ii", "")
-        elif " jr." in com_player_name:
-            com_player_name = com_player_name.replace(" jr.", "")
-        if com_player_name == player_name and position.upper() == tds[3].text:
-            await ctx.send("Overall Rank: " + tds[0].text + ", Player: " + tds[1].text + ", Team: " + tds[2].text + ", Position: " + tds[3].text +
-                           ", Points: " + tds[4].text + ", Games: " + tds[5].text + ", AVG: " + tds[6].text)
-            is_displayed = True
-    if not is_displayed:
-        await ctx.send("No player exists with that name and position. Please "
-                       "make sure that the full name of the player is typed in "
-                       "correctly and the corresponding position is correct.")
+        is_displayed = False
+        p_add_name = None
+        p_add_team = None
+        p_add_position = None
+        for tr in soup.find_all('tr')[1:]:
+            tds = tr.find_all('td')
+            # print(tds[1].text.lower()) Need to get rid of
+            com_player_name = tds[1].text.lower()
+            if " iii" in com_player_name:
+                com_player_name = com_player_name.replace(" iii", "")
+            elif " ii" in com_player_name:
+                com_player_name = com_player_name.replace(" ii", "")
+            elif " jr." in com_player_name:
+                com_player_name = com_player_name.replace(" jr.", "")
+            if com_player_name == player_name and position.upper() == tds[3].text:
+                await ctx.send("VALID PLAYER")
+                p_add_name = tds[1].text
+                p_add_team = tds[2].text
+                p_add_position = tds[3].text
+                is_displayed = True
+        if not is_displayed:
+            await ctx.send("No player exists with that name and position. Please "
+                           "make sure that the full name of the player is typed in "
+                           "correctly and the corresponding position is correct.")
+            return
+
+        # Check if player already on team
+        query2 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+        mycursor.execute(query2)
+        records2 = mycursor.fetchall()
+        player = (p_add_position, p_add_name, p_add_team)
+
+        player_on_team = False
+        for record in records2:
+            if player == record:
+                player_on_team = True
+
+        if player_on_team:
+            await ctx.send("Error. This player is already on your team.")
+            return
+        query = "INSERT INTO User_Roster (userID, position, name, team) VALUES (%s, %s, %s, %s)"
+        values1 = (user_id, p_add_position, p_add_name, p_add_team)
+        mycursor.execute(query, values1)
+        mydb.commit()
+        await ctx.send("Player added successfully.")
+
+
+
+
+    # await ctx.send("Please enter a team name:")
+        # name_response = await client.wait_for('message')
+        # team_name = name_response.content
+        # query = "INSERT INTO Users (userID, team_name) VALUES (%s, %s)"
+        # values = (user_id, team_name)
+        # mycursor.execute(query, values)
+        # mydb.commit()
 
 
     # await ctx.send("Does your league contain IDP's? Please enter 'Yes' or 'No'")
