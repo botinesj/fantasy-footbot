@@ -367,6 +367,10 @@ async def myteam(ctx):
     records3 = mycursor.fetchall()
     for record in records3:
         await ctx.send(record)
+    if records3 == []:
+        await ctx.send("Your team has no players.")
+
+
 
     # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
     await ctx.send("What would you like to do? Please enter one of the following:\n"
@@ -442,7 +446,75 @@ async def myteam(ctx):
         mycursor.execute(query, values1)
         mydb.commit()
         await ctx.send("Player added successfully.")
+    else:
+        await ctx.send("What is the player's position? Please enter one of the following:\n"
+                       "QB\n"
+                       "RB\n"
+                       "WR\n"
+                       "TE\n"
+                       "K\n"
+                       "DST\n")
 
+        position_response = await client.wait_for('message', check=position_check)
+        position = position_response.content.upper()
+
+        await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
+        name_response = await client.wait_for('message')
+        player_name = name_response.content.lower()
+
+        # Making sure this is a valid Player
+        r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/?year=2020')
+        soup = bs4.BeautifulSoup(r.text, features="html.parser")
+
+        is_displayed = False
+        p_add_name = None
+        p_add_team = None
+        p_add_position = None
+        for tr in soup.find_all('tr')[1:]:
+            tds = tr.find_all('td')
+            # print(tds[1].text.lower()) Need to get rid of
+            com_player_name = tds[1].text.lower()
+            if " iii" in com_player_name:
+                com_player_name = com_player_name.replace(" iii", "")
+            elif " ii" in com_player_name:
+                com_player_name = com_player_name.replace(" ii", "")
+            elif " jr." in com_player_name:
+                com_player_name = com_player_name.replace(" jr.", "")
+            if com_player_name == player_name and position.upper() == tds[3].text:
+                await ctx.send("VALID PLAYER")
+                p_add_name = tds[1].text
+                p_add_team = tds[2].text
+                p_add_position = tds[3].text
+                is_displayed = True
+        if not is_displayed:
+            await ctx.send("No player exists with that name and position. Please "
+                           "make sure that the full name of the player is typed in "
+                           "correctly and the corresponding position is correct.")
+            return
+
+        # Check if player on team
+        query2 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+        mycursor.execute(query2)
+        records2 = mycursor.fetchall()
+        player = (p_add_position, p_add_name, p_add_team)
+
+        player_on_team = False
+        for record in records2:
+            if player == record:
+                player_on_team = True
+
+        if not player_on_team:
+            await ctx.send("Error. This player is not on your team.")
+            return
+        # query4 = "DELETE FROM User_Roster WHERE userID = " + str(user_id) + \ #THIS FORMAT WILL NOT WORK
+        #          " AND position = " + p_add_position + \
+        #          " AND name = " + p_add_name + " AND team = " + p_add_team
+        query4 = "DELETE FROM User_Roster WHERE userID = %s and position = %s " \
+                 "and name = %s and team = %s"
+        values = (str(user_id), p_add_position, p_add_name, p_add_team)
+        mycursor.execute(query4, values)
+        mydb.commit()
+        await ctx.send("Player deleted successfully.")
 
 
 
@@ -461,14 +533,6 @@ async def myteam(ctx):
     # answer1 = yn_response.content.upper()
     #     # add player - verify its a realy player then save it
     #     # delete player - verify that player is real, verify that player is on the team, then delete
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
