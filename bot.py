@@ -1,10 +1,6 @@
-import discord
 from discord.ext import commands
 import requests
 import bs4
-from bs4 import BeautifulSoup
-import mysql.connector as mysql
-import db
 from db import mycursor, mydb
 
 client = commands.Bot(command_prefix='.')
@@ -44,36 +40,61 @@ async def on_message(message):
         return
 
     if message.content.startswith('/options'):
-        await message.channel.send('Here are the options:\n'
-                                   '.top - View Top Ranked Players\n'
-                                   ".specific - View A Specific Player's Stats\n"
-                                   ".who - Who Should I Start?\n"
-                                   ".watch - Watch List\n"
-                                   ".myteam - My Team\n"
-                                   "To be added later - View NFL Schedule\n"
-                                   "To be added later - Who Should I bet on?\n")
+        await message.channel.send("Here are the options:\n"
+                                   "• .top - View Top Ranked Players\n"
+                                   "Description - Displays the top ranked "
+                                   "players based on the scoring format. "
+                                   "User's have the option of viewing rankings "
+                                   "by position or overall. Positional rankings"
+                                   " display the top 5 players at every "
+                                   "position. Overall rankings display the top"
+                                   " 50 players overall. The user can "
+                                   "indicate whether their league contains "
+                                   "IDP's and the positional rankings will account "
+                                   "for this. Overall rankings do not not "
+                                   "support IDP leagues.\n"
+                                   "• .specific - View A Specific Player's Stats\n"
+                                   "Description - Displays various statistics "
+                                   "for a specific given player.\n"
+                                   "• .who - Who Should I Start?\n"
+                                   "Description - Given two players (including "
+                                   "DST's) and a scoring format, displays the "
+                                   "percentage of fantasy football experts that "
+                                   "recommend starting one player over the "
+                                   "other for the current game week. DST's can "
+                                   "only be compared with other DST'S. The "
+                                   "same applies to K's.\n"
+                                   "• .myteam - My Team\n"
+                                   "Description - Display's players on your "
+                                   "team. You may add and remove players as you"
+                                   " desire. This bot will remember these "
+                                   "players for you.\n"
+                                   "• To be added later - Watch List\n"
+                                   "• To be added later - View NFL Schedule\n"
+                                   "• To be added later - Who Should I bet on?\n")
     await client.process_commands(message)
 
 
 @client.command()
 async def top(ctx):
-    await ctx.send("Does your league contain IDP's? Please enter 'Yes' or 'No'")
+    await ctx.send("Does your league contain IDP's? Please enter 'Yes' or 'No':")
     yn_response = await client.wait_for('message', check=yes_no_check)
     answer1 = yn_response.content.upper()
 
     await ctx.send("What is the Scoring format? Please enter one of the following:\n"
-                   "Standard\n"
-                   "PPR\n"
-                   "Half\n")
+                   "• Standard\n"
+                   "• PPR\n"
+                   "• Half\n")
     scoring_response1 = await client.wait_for('message', check=scoring_format_check)
     scoring_format1 = scoring_response1.content.upper()
 
     await ctx.send("Do you want to see overall rankings or by position? Please enter one of the following:\n"
-                   "Overall (Does not contain IDP's for now)\n"
-                   "Position\n")
+                   "• Overall (Does not contain IDP's)\n"
+                   "• Position\n")
     rankings_response = await client.wait_for('message', check=ovr_pos_check)
     answer2 = rankings_response.content.upper()
 
+    soup = None
     if answer2 == "OVERALL":
         if scoring_format1 == "STANDARD":
             r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/?year=2020')
@@ -86,8 +107,8 @@ async def top(ctx):
             soup = bs4.BeautifulSoup(r.text, features="html.parser")
         for tr in soup.find_all('tr')[1:51]:
             tds = tr.find_all('td')
-            await ctx.send("Rank: " + tds[0].text + ", Player: " + tds[1].text + ", Team: " + tds[2].text + ", Points: " + tds[3].text +
-                           ", Games: " + tds[4].text + ", AVG: " + tds[5].text)
+            await ctx.send("Rank: " + tds[0].text + ", Player: " + tds[1].text + ", Team: " + tds[2].text + ", Position: " + tds[3].text +
+                           ", Points: " + tds[4].text + ", Games: " + tds[5].text+ ", AVG per game: " + tds[6].text)
     else:
         positions = ["QB", "RB", "WR", "TE", "K", "DST", "DL", "LB", "DB"]
 
@@ -116,30 +137,32 @@ async def top(ctx):
                     await ctx.send("Rank: " + tds[0].text + ", Player: " + tds[1].text + ", Team: " + tds[2].text + ", Points: " + tds[3].text +
                                    ", Games: " + tds[4].text + ", AVG: " + tds[5].text)
 
+
 @client.command()
 async def specific(ctx):
     await ctx.send("What is the player's position? Please enter one of the following:\n"
-                   "QB\n"
-                   "RB\n"
-                   "WR\n"
-                   "TE\n"
-                   "K\n"
-                   "DST\n")
+                   "• QB\n"
+                   "• RB\n"
+                   "• WR\n"
+                   "• TE\n"
+                   "• K\n"
+                   "• DST\n")
     position_response = await client.wait_for('message', check=position_check)
     position = position_response.content.upper()
     scoring_format2 = "STANDARD"
     if position not in ["QB", "DST"]:
         await ctx.send("What is the Scoring format? Please enter one of the following:\n"
-                       "Standard\n"
-                       "PPR\n"
-                       "Half\n")
+                       "• Standard\n"
+                       "• PPR\n"
+                       "• Half\n")
         scoring_response2 = await client.wait_for('message', check=scoring_format_check)
         scoring_format2 = scoring_response2.content.upper()
 
-    await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
+    await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman. If it is a DST, please enter the team's full name. For example, Washington Football Team)")
     name_response = await client.wait_for('message')
     player_name = name_response.content.lower()
 
+    soup = None
     if scoring_format2 == "STANDARD":
         r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/?year=2020')
         soup = bs4.BeautifulSoup(r.text, features="html.parser")
@@ -153,7 +176,6 @@ async def specific(ctx):
     is_displayed = False
     for tr in soup.find_all('tr')[1:]:
         tds = tr.find_all('td')
-        # print(tds[1].text.lower()) Need to get rid of
         com_player_name = tds[1].text.lower()
         if " iii" in com_player_name:
             com_player_name = com_player_name.replace(" iii", "")
@@ -170,32 +192,33 @@ async def specific(ctx):
                        "make sure that the full name of the player is typed in "
                        "correctly and the corresponding position is correct.")
 
+
 @client.command()
 async def who(ctx):
-    # DST not working yet
-    await ctx.send("Note: You can only compare a DST with another DST. Otherwise, this bot will not work.")
+    await ctx.send("Note: You can only compare a DST with another DST and a K "
+                   "with another K. Otherwise, this bot will not work.")
     await ctx.send("What is the Scoring format? Please enter one of the following:\n"
-                   "Standard\n"
-                   "PPR\n"
-                   "Half\n")
+                   "• Standard\n"
+                   "• PPR\n"
+                   "• Half\n")
     scoring_response3 = await client.wait_for('message', check=scoring_format_check)
     scoring_format3 = scoring_response3.content.upper()
 
     await ctx.send("What is the first player's position? Please enter one of the following:\n"
-                   "QB\n"
-                   "RB\n"
-                   "WR\n"
-                   "TE\n"
-                   "K\n"
-                   "DST\n")
+                   "• QB\n"
+                   "• RB\n"
+                   "• WR\n"
+                   "• TE\n"
+                   "• K\n"
+                   "• DST\n")
     p1_pos_response = await client.wait_for('message', check=position_check)
     position1 = p1_pos_response.content.upper()
 
-    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman\n"
-                   "If it is a defense, please enter the team's full name. For example, Washington Football Team)")
+    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman"
+                   "If it is a DST, please enter the team's full name. For example, Washington Football Team)")
     name_response = await client.wait_for('message')
     player_name1 = name_response.content.lower()
-
+    soup = None
     if scoring_format3 == "STANDARD":
         r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/?year=2020')
         soup = bs4.BeautifulSoup(r.text, features="html.parser")
@@ -210,7 +233,6 @@ async def who(ctx):
     p1_name = None
     for tr in soup.find_all('tr')[1:]:
         tds = tr.find_all('td')
-        # print(tds[1].text.lower()) Need to get rid of
         com_player_name = tds[1].text.lower()
         if " iii" in com_player_name:
             com_player_name = com_player_name.replace(" iii", "")
@@ -230,14 +252,13 @@ async def who(ctx):
                        "the player is typed in correctly and the corresponding "
                        "position is correct.")
         return
-    # THIS PART STILL SHOWS UP EVEN IF PREVIOUS PART IS ERROR. I WOULD ADD A VARIABLE TO CHECK. Indent all code below for if check and change a variable
     await ctx.send("What is the second player's position? Please enter one of the following:\n"
-                   "QB\n"
-                   "RB\n"
-                   "WR\n"
-                   "TE\n"
-                   "K\n"
-                   "DST\n")
+                   "• QB\n"
+                   "• RB\n"
+                   "• WR\n"
+                   "• TE\n"
+                   "• K\n"
+                   "• DST\n")
     p2_pos_response = await client.wait_for('message', check=position_check)
     position2 = p2_pos_response.content.upper()
 
@@ -249,7 +270,6 @@ async def who(ctx):
     p2_name = None
     for tr in soup.find_all('tr')[1:]:
         tds = tr.find_all('td')
-        # print(tds[1].text.lower()) Need to get rid of
         com_player2_name = tds[1].text.lower()
         if " iii" in com_player2_name:
             com_player2_name = com_player2_name.replace(" iii", "")
@@ -300,15 +320,9 @@ async def who(ctx):
             p1_name += " defense"
             p2_name += " defense"
 
-
-
         p1_name = p1_name.replace(" ", "-")
         p2_name = p2_name.replace(" ", "-")
-
-
-
-
-
+        soup2 = None
         if scoring_format3 == "STANDARD":
             r = requests.get('https://www.fantasypros.com/nfl/start/' + p1_name + "-" + p2_name + '.php')
             soup2 = bs4.BeautifulSoup(r.text, features="html.parser")
@@ -343,11 +357,7 @@ async def who(ctx):
 
 @client.command()
 async def myteam(ctx):
-    # display current team members
-    # ask if user wants to add a new member or drop a member
-    # If empty, display specific message
     user_id = ctx.author.id
-    # if discord_id is not in USER table, add it
     query = "SELECT userID FROM Users"
     mycursor.execute(query)
     records = mycursor.fetchall()
@@ -381,8 +391,8 @@ async def myteam(ctx):
 
     # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
     await ctx.send("What would you like to do? Please enter one of the following:\n"
-                   "ADD - Add a player to your team\n"
-                   "REMOVE - Remove a player from your team\n")
+                   "• ADD - Add a player to your team\n"
+                   "• REMOVE - Remove a player from your team\n")
     action_response = await client.wait_for('message', check=myteam_check)
     action = action_response.content.upper()
 
@@ -390,12 +400,12 @@ async def myteam(ctx):
 
     if action == "ADD":
         await ctx.send("What is the player's position? Please enter one of the following:\n"
-                       "QB\n"
-                       "RB\n"
-                       "WR\n"
-                       "TE\n"
-                       "K\n"
-                       "DST\n")
+                       "• QB\n"
+                       "• RB\n"
+                       "• WR\n"
+                       "• TE\n"
+                       "• K\n"
+                       "• DST\n")
 
         position_response = await client.wait_for('message', check=position_check)
         position = position_response.content.upper()
@@ -414,7 +424,6 @@ async def myteam(ctx):
         p_add_position = None
         for tr in soup.find_all('tr')[1:]:
             tds = tr.find_all('td')
-            # print(tds[1].text.lower()) Need to get rid of
             com_player_name = tds[1].text.lower()
             if " iii" in com_player_name:
                 com_player_name = com_player_name.replace(" iii", "")
@@ -455,12 +464,12 @@ async def myteam(ctx):
         await ctx.send("Player added successfully.")
     else:
         await ctx.send("What is the player's position? Please enter one of the following:\n"
-                       "QB\n"
-                       "RB\n"
-                       "WR\n"
-                       "TE\n"
-                       "K\n"
-                       "DST\n")
+                       "• QB\n"
+                       "• RB\n"
+                       "• WR\n"
+                       "• TE\n"
+                       "• K\n"
+                       "• DST\n")
 
         position_response = await client.wait_for('message', check=position_check)
         position = position_response.content.upper()
@@ -479,7 +488,6 @@ async def myteam(ctx):
         p_add_position = None
         for tr in soup.find_all('tr')[1:]:
             tds = tr.find_all('td')
-            # print(tds[1].text.lower()) Need to get rid of
             com_player_name = tds[1].text.lower()
             if " iii" in com_player_name:
                 com_player_name = com_player_name.replace(" iii", "")
@@ -513,9 +521,12 @@ async def myteam(ctx):
         if not player_on_team:
             await ctx.send("Error. This player is not on your team.")
             return
-        # query4 = "DELETE FROM User_Roster WHERE userID = " + str(user_id) + \ #THIS FORMAT WILL NOT WORK
+
+        # THIS FORMAT WILL NOT WORK
+        # query4 = "DELETE FROM User_Roster WHERE userID = " + str(user_id) + \
         #          " AND position = " + p_add_position + \
         #          " AND name = " + p_add_name + " AND team = " + p_add_team
+
         query4 = "DELETE FROM User_Roster WHERE userID = %s and position = %s " \
                  "and name = %s and team = %s"
         values = (str(user_id), p_add_position, p_add_name, p_add_team)
@@ -523,31 +534,9 @@ async def myteam(ctx):
         mydb.commit()
         await ctx.send("Player deleted successfully.")
 
-
-
-    # await ctx.send("Please enter a team name:")
-        # name_response = await client.wait_for('message')
-        # team_name = name_response.content
-        # query = "INSERT INTO Users (userID, team_name) VALUES (%s, %s)"
-        # values = (user_id, team_name)
-        # mycursor.execute(query, values)
-        # mydb.commit()
-
-
-    # await ctx.send("Does your league contain IDP's? Please enter 'Yes' or 'No'")
-    # await ctx.send("Does your league contain IDP's? Please enter 'Yes' or 'No'")
-    # yn_response = await client.wait_for('message', check=yes_no_check)
-    # answer1 = yn_response.content.upper()
-    #     # add player - verify its a realy player then save it
-    #     # delete player - verify that player is real, verify that player is on the team, then delete
-
-
 if __name__ == '__main__':
     import config
     client.run(config.TOKEN)
 
-
-
 # To fix: .who and .specific sometimes it counts its own messages as input which is an issue
-# .who - New Orleans for michael thomas and any player really as NOM
-# Need to fix Defense .who
+
