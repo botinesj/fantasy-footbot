@@ -26,6 +26,10 @@ def myteam_check(msg):
     return msg.content.upper() in ["ADD", "REMOVE"]
 
 
+def not_bot_check(msg):
+    return msg.author != client.user
+
+
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -159,7 +163,7 @@ async def specific(ctx):
         scoring_format2 = scoring_response2.content.upper()
 
     await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman. If it is a DST, please enter the team's full name. For example, Washington Football Team)")
-    name_response = await client.wait_for('message')
+    name_response = await client.wait_for('message', check=not_bot_check)
     player_name = name_response.content.lower()
 
     soup = None
@@ -188,7 +192,8 @@ async def specific(ctx):
                            ", Points: " + tds[4].text + ", Games: " + tds[5].text + ", AVG: " + tds[6].text)
             is_displayed = True
     if not is_displayed:
-        await ctx.send("No player exists with that name and position. Please "
+        await ctx.send("No player exists with that name and position. You'll "
+                       "have to start the command again. Please "
                        "make sure that the full name of the player is typed in "
                        "correctly and the corresponding position is correct.")
 
@@ -216,7 +221,7 @@ async def who(ctx):
 
     await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman"
                    "If it is a DST, please enter the team's full name. For example, Washington Football Team)")
-    name_response = await client.wait_for('message')
+    name_response = await client.wait_for('message', check=not_bot_check)
     player_name1 = name_response.content.lower()
     soup = None
     if scoring_format3 == "STANDARD":
@@ -263,7 +268,7 @@ async def who(ctx):
     position2 = p2_pos_response.content.upper()
 
     await ctx.send("What is the second player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
-    name_response = await client.wait_for('message')
+    name_response = await client.wait_for('message', check=not_bot_check)
     player2_name = name_response.content.lower()
 
     is_displayed2 = False
@@ -387,16 +392,11 @@ async def myteam(ctx):
     if records3 == []:
         await ctx.send("Your team has no players.")
 
-
-
-    # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
     await ctx.send("What would you like to do? Please enter one of the following:\n"
                    "• ADD - Add a player to your team\n"
                    "• REMOVE - Remove a player from your team\n")
     action_response = await client.wait_for('message', check=myteam_check)
     action = action_response.content.upper()
-
-    # CODE TAKEN FROM SPECIFIC - I AM REPEAING THEREFORE SHOULD PROB MAKE INTO FUNCTION OR SOMETHING
 
     if action == "ADD":
         await ctx.send("What is the player's position? Please enter one of the following:\n"
@@ -411,7 +411,7 @@ async def myteam(ctx):
         position = position_response.content.upper()
 
         await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
-        name_response = await client.wait_for('message')
+        name_response = await client.wait_for('message', check=not_bot_check)
         player_name = name_response.content.lower()
 
         # Making sure this is a valid Player
@@ -475,7 +475,7 @@ async def myteam(ctx):
         position = position_response.content.upper()
 
         await ctx.send("What is the player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
-        name_response = await client.wait_for('message')
+        name_response = await client.wait_for('message', check=not_bot_check)
         player_name = name_response.content.lower()
 
         # Making sure this is a valid Player
@@ -539,4 +539,6 @@ if __name__ == '__main__':
     client.run(config.TOKEN)
 
 # To fix: .who and .specific sometimes it counts its own messages as input which is an issue
+# add display top by position. Give them a prompt for how many they want to print
+# add timeouts
 
