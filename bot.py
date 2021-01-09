@@ -22,6 +22,17 @@ def ovr_pos_check(msg):
     return msg.content.lower() in ["overall", "position"]
 
 
+def overall_check(msg):
+    try:
+        number = int(msg.content)
+        return 1 <= number <= 100
+    except ValueError:
+        return False
+
+
+
+
+
 def myteam_check(msg):
     return msg.content.upper() in ["ADD", "REMOVE"]
 
@@ -51,8 +62,9 @@ async def on_message(message):
                                    "User's have the option of viewing rankings "
                                    "by position or overall. Positional rankings"
                                    " display the top 5 players at every "
-                                   "position. Overall rankings display the top"
-                                   " 50 players overall. The user can "
+                                   "position. Overall rankings "
+                                   "display the top X players overall, where X "
+                                   "is given by the user. The user can "
                                    "indicate whether their league contains "
                                    "IDP's and the positional rankings will account "
                                    "for this. Overall rankings do not not "
@@ -93,7 +105,7 @@ async def top(ctx):
     scoring_format1 = scoring_response1.content.upper()
 
     await ctx.send("Do you want to see overall rankings or by position? Please enter one of the following:\n"
-                   "• Overall (Does not contain IDP's)\n"
+                   "• Overall - (Does not contain IDP's)\n"
                    "• Position\n")
     rankings_response = await client.wait_for('message', check=ovr_pos_check)
     answer2 = rankings_response.content.upper()
@@ -109,10 +121,13 @@ async def top(ctx):
         elif scoring_format1 == "PPR":
             r = requests.get('https://www.fantasypros.com/nfl/reports/leaders/ppr.php?year=2020')
             soup = bs4.BeautifulSoup(r.text, features="html.parser")
-        for tr in soup.find_all('tr')[1:51]:
+        await ctx.send("How many of the top players overall do you want to see? Please enter a number between 1 and 100:")
+        amount_response = await client.wait_for('message', check=overall_check)
+        amount = int(amount_response.content)
+        for tr in soup.find_all('tr')[1:amount + 1]:
             tds = tr.find_all('td')
             await ctx.send("Rank: " + tds[0].text + ", Player: " + tds[1].text + ", Team: " + tds[2].text + ", Position: " + tds[3].text +
-                           ", Points: " + tds[4].text + ", Games: " + tds[5].text+ ", AVG per game: " + tds[6].text)
+                           ", Points: " + tds[4].text + ", Games: " + tds[5].text + ", AVG per game: " + tds[6].text)
     else:
         positions = ["QB", "RB", "WR", "TE", "K", "DST", "DL", "LB", "DB"]
 
@@ -384,12 +399,12 @@ async def myteam(ctx):
     records1 = mycursor.fetchall() # fetchone gives records variable above for some reason
     await ctx.send("============" + records1[0][0].upper() + "============")
 
-    query3 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
-    mycursor.execute(query3)
-    records3 = mycursor.fetchall()
-    for record in records3:
+    query2 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+    mycursor.execute(query2)
+    records2 = mycursor.fetchall()
+    for record in records2:
         await ctx.send(record[0] + "-" + record[1] + "-" + record[2])
-    if records3 == []:
+    if records2 == []:
         await ctx.send("Your team has no players.")
 
     await ctx.send("What would you like to do? Please enter one of the following:\n"
@@ -444,13 +459,13 @@ async def myteam(ctx):
             return
 
         # Check if player already on team
-        query2 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
-        mycursor.execute(query2)
-        records2 = mycursor.fetchall()
+        query3 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+        mycursor.execute(query3)
+        records3 = mycursor.fetchall()
         player = (p_add_position, p_add_name, p_add_team)
 
         player_on_team = False
-        for record in records2:
+        for record in records3:
             if player == record:
                 player_on_team = True
 
@@ -508,13 +523,13 @@ async def myteam(ctx):
             return
 
         # Check if player on team
-        query2 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
-        mycursor.execute(query2)
-        records2 = mycursor.fetchall()
+        query3 = "SELECT position, name, team FROM User_Roster WHERE userID = " + str(user_id)
+        mycursor.execute(query3)
+        records3 = mycursor.fetchall()
         player = (p_add_position, p_add_name, p_add_team)
 
         player_on_team = False
-        for record in records2:
+        for record in records3:
             if player == record:
                 player_on_team = True
 
@@ -538,7 +553,5 @@ if __name__ == '__main__':
     import config
     client.run(config.TOKEN)
 
-# To fix: .who and .specific sometimes it counts its own messages as input which is an issue
-# add display top by position. Give them a prompt for how many they want to print
-# add timeouts
+
 
