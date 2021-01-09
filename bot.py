@@ -191,7 +191,8 @@ async def who(ctx):
     p1_pos_response = await client.wait_for('message', check=position_check)
     position1 = p1_pos_response.content.upper()
 
-    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman)")
+    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman\n"
+                   "If it is a defense, please enter the team's full name. For example, Washington Football Team)")
     name_response = await client.wait_for('message')
     player_name1 = name_response.content.lower()
 
@@ -228,6 +229,7 @@ async def who(ctx):
                        "restart the command and make sure that the full name of "
                        "the player is typed in correctly and the corresponding "
                        "position is correct.")
+        return
     # THIS PART STILL SHOWS UP EVEN IF PREVIOUS PART IS ERROR. I WOULD ADD A VARIABLE TO CHECK. Indent all code below for if check and change a variable
     await ctx.send("What is the second player's position? Please enter one of the following:\n"
                    "QB\n"
@@ -277,12 +279,28 @@ async def who(ctx):
 
     cities =["arizona", "baltimore", "buffalo", "carolina", "chicago", "cleveland", "dallas", "denver", "detroit", "green bay",
              "houston", "indianapolis", "jacksonville", "kansas city", "los angeles", "miami", "minnesota", "new england",
-             "new orleans", "philadelphia", "pittsburgh", "san francisco", "seattle", "tennessee", "washington"]
+             "new orleans", "philadelphia", "pittsburgh", "san francisco", "seattle", "tampa bay", "tennessee", "washington"]
 
     if is_displayed and is_displayed2:
-        # if position1 and position2 == "DST":
-        # LAC  - > san diego defense
-        # NYG and NYJ need full names
+        if position1 and position2 == "DST":
+            if p1_name == "los angeles chargers":
+                p1_name = "san diego"
+            if p2_name == "los angeles chargers":
+                p2_name = "san diego"
+            if p1_name != "new york giants" or "new york jets": # NYG and NYJ need full names
+                for city in cities:
+                    if city in p1_name:
+                        start_ind = p1_name.find(city)
+                        p1_name = p1_name[start_ind:len(city)]
+            if p2_name != "new york giants" or "new york jets": # NYG and NYJ need full names
+                for city in cities:
+                    if city in p2_name:
+                        start_ind = p2_name.find(city)
+                        p2_name = p2_name[start_ind:len(city)]
+            p1_name += " defense"
+            p2_name += " defense"
+
+
 
         p1_name = p1_name.replace(" ", "-")
         p2_name = p2_name.replace(" ", "-")
