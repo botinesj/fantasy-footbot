@@ -304,17 +304,6 @@ async def who(ctx):
 
         p1_name = p1_name.replace(" ", "-")
         p2_name = p2_name.replace(" ", "-")
-        # if position1 and position2 == "DST":
-        #     position1_hyphen_count = position1.count("-")
-        #     position2_hyphen_count = position2.count("-")
-        #     if position1_hyphen_count == 1: # MAKE INTO FUNCTION!!!
-        #         "-".join(position1.split("-", 1)[:1])
-        #     else:
-        #         "-".join(position1.split("-", 2)[:2])
-        #     if position2_hyphen_count == 1:
-        #         "-".join(position2.split("-", 1)[:1])
-        #     else:
-        #         "-".join(position2.split("-", 2)[:2])
 
 
 
@@ -384,7 +373,7 @@ async def myteam(ctx):
     mycursor.execute(query3)
     records3 = mycursor.fetchall()
     for record in records3:
-        await ctx.send(record)
+        await ctx.send(record[0] + "-" + record[1] + "-" + record[2])
     if records3 == []:
         await ctx.send("Your team has no players.")
 

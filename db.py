@@ -16,7 +16,7 @@ mycursor = mydb.cursor()
 
 #mycursor.execute("CREATE TABLE Users (userID bigint PRIMARY KEY, team_name "
 #                 "VARCHAR(250))")
-# mycursor.execute("CREATE TABLE User_Roster (userID bigint PRIMARY KEY, "
+# mycursor.execute("CREATE TABLE User_Roster (userID bigint, "
 #                  "FOREIGN KEY(userID) REFERENCES Users(userID), "
 #                  "position VARCHAR(250), name VARCHAR(250), team VARCHAR(250))")
 #mycursor.execute("CREATE TABLE Players (playerID int PRIMARY KEY AUTO_INCREMENT"
@@ -33,6 +33,6 @@ mycursor = mydb.cursor()
 #     print(x)
 
 
-# sql = "DROP TABLE Players"
+# sql = "DROP TABLE User_Roster"
 #
 # mycursor.execute(sql)
