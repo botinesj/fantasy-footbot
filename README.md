@@ -31,5 +31,5 @@ I have plans to implement more Fantasy Football actions as well as general actio
 <h3>How to run</h3> 
 
 1. Click the following link https://discord.gg/895dNztPDG
-2. Type in the **general** text channel: */options* to see what you can do. Optionally, you can private message Fantasy Footbot instead. 
+2. Type in the **general** text channel */options* to see what you can do. Optionally, you can private message Fantasy Footbot */options* instead. 
  
