@@ -231,7 +231,7 @@ async def who(ctx):
     p1_pos_response = await client.wait_for('message', check=position_check)
     position1 = p1_pos_response.content.upper()
 
-    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman"
+    await ctx.send("What is the first player's full name? (You must omit numbers and suffixes from a player's name. For example, Patrick Mahomes II -> Patrick Mahomes and Michael Pittman Jr. -> Michael Pittman. "
                    "If it is a DST, please enter the team's full name. For example, Washington Football Team)")
     name_response = await client.wait_for('message', check=not_bot_check)
     player_name1 = name_response.content.lower()
