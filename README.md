@@ -1,5 +1,3 @@
-**THIS PROJECT IS A WORK IN PROGRESS**
-
 This is a Discord Bot I created. It performs a variety of actions related to Fantasy Football. The features it currently provides are:
 
 * View Top Ranked Players
@@ -39,14 +37,14 @@ You must have downloaded MySql and BeautifulSoup.
 1. Copy this repo. Then you will need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html  
   
   
-*db.py*  
+**db.py**  
 3. Replace PASSWORD in db.py with the password for your MySql account   
 4. Uncomment the code from lines 14-18  
 5. Run db.py  
 6. Comment the code from lines 14-18  
 7. Remove line 2: "from config import PASSWORD" 
   
-*bot.py*  
+**bot.py**  
 8. Replace TOKEN in line 551 with the the token of the new bot you created in step 1  
 9. Run bot.py  
 
