@@ -28,26 +28,26 @@ I have plans to implement more Fantasy Football actions as well as general actio
 * View NFL Schedule
 * What team should I bet on?
 
-<h3>Video Demonstration</h3> 
+<h2>Video Demonstration</h3> 
 https://streamable.com/wnp28j
 
-<h3>How to run</h3> 
-<h1>Requirements</h1>
+<h2>How to run</h3> 
+<h4>Requirements</h4>
 * You must have downloaded MySql and BeautifulSoup.
 
-<h1>Steps</h1>
-1. You'll need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html
-2. Copy this repo
-
-*db.py*
-3. Replace PASSWORD in db.py with the password for your MySql account. 
-4. Uncomment the code from lines 14-18
-5. Run db.py
-6. Comment the code from lines 14-18
-7. Remove line 2: from config import PASSWORD
-
-*bot.py*
-8. Replace TOKEN in line 551 with the the token of the new bot you created in step 1.
-9. Run bot.py
+<h4>Steps</h4>
+1. You'll need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html    
+2. Copy this repo  
+  
+*db.py*  
+3. Replace PASSWORD in db.py with the password for your MySql account   
+4. Uncomment the code from lines 14-18  
+5. Run db.py  
+6. Comment the code from lines 14-18  
+7. Remove line 2: from config import PASSWORD  
+  
+*bot.py*. 
+8. Replace TOKEN in line 551 with the the token of the new bot you created in step 1  
+9. Run bot.py  
 
  
