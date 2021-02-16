@@ -2,7 +2,6 @@ from discord.ext import commands
 import requests
 import bs4
 from db import mycursor, mydb
-from keep_alive import keep_alive
 
 client = commands.Bot(command_prefix='.')
 
@@ -29,9 +28,6 @@ def overall_check(msg):
         return 1 <= number <= 100
     except ValueError:
         return False
-
-
-
 
 
 def myteam_check(msg):
@@ -551,7 +547,6 @@ async def myteam(ctx):
         await ctx.send("Player deleted successfully.")
 
 if __name__ == '__main__':
-    keep_alive()
     import config
     client.run(config.TOKEN)
 
