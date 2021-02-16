@@ -32,10 +32,10 @@ I have plans to implement more Fantasy Football actions as well as general actio
 https://streamable.com/wnp28j
 
 <h3>How to run</h3> 
-<h1>Requirements<h1>
+<h1>Requirements</h1>
 * You must have downloaded MySql and BeautifulSoup.
 
-<h1>Steps<h1>
+<h1>Steps</h1>
 1. You'll need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html
 2. Copy this repo
 
