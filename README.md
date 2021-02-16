@@ -35,9 +35,8 @@ https://streamable.com/wnp28j
 <h4>Requirements</h4>
 You must have downloaded MySql and BeautifulSoup.
 
-<h4>Steps</h4>
-1. You'll need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html  
-2. Copy this repo. 
+<h4>Steps</h4> 
+1. Copy this repo. Then you will need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html  
   
 *db.py*  
 3. Replace PASSWORD in db.py with the password for your MySql account   
