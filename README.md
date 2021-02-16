@@ -38,6 +38,7 @@ You must have downloaded MySql and BeautifulSoup.
 <h4>Steps</h4> 
 1. Copy this repo. Then you will need to create a new Discord bot and invite it to the desired server. These steps are outlined here: https://discordpy.readthedocs.io/en/latest/discord.html  
   
+  
 *db.py*  
 3. Replace PASSWORD in db.py with the password for your MySql account   
 4. Uncomment the code from lines 14-18  
