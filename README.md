@@ -38,14 +38,14 @@ You must have downloaded MySql and BeautifulSoup.
   
   
 **db.py**  
-3. Replace PASSWORD in db.py with the password for your MySql account   
-4. Uncomment the code from lines 14-18  
-5. Run db.py  
-6. Comment the code from lines 14-18  
-7. Remove line 2: "from config import PASSWORD" 
+2. Replace PASSWORD in db.py with the password for your MySql account   
+3. Uncomment the code from lines 14-18  
+4. Run db.py  
+5. Comment the code from lines 14-18  
+6. Remove line 2: "from config import PASSWORD" 
   
 **bot.py**  
-8. Replace TOKEN in line 551 with the the token of the new bot you created in step 1  
-9. Run bot.py  
+7. Replace TOKEN in line 551 with the the token of the new bot you created in step 1  
+8. Run bot.py  
 
  
